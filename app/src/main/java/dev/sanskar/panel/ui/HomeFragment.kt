@@ -55,7 +55,9 @@ class HomeFragment : Fragment() {
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .clickWithRipple { },
+                    .clickWithRipple {
+                        findNavController().navigate(R.id.action_homeFragment_to_createFragment)
+                    },
             ) {
                 Text(
                     text = "Create Quiz",
@@ -64,7 +66,6 @@ class HomeFragment : Fragment() {
                     style = MaterialTheme.typography.h3
                 )
             }
-
             Box(
                 modifier = Modifier
                     .weight(1f)
