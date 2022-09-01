@@ -32,7 +32,7 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        if (Firebase.auth.currentUser != null) findNavController().navigate(R.id.action_homeFragment_to_loginFragment)
+        if (Firebase.auth.currentUser == null) findNavController().navigate(R.id.action_homeFragment_to_loginFragment)
 
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
