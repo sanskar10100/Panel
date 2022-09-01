@@ -18,6 +18,10 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.text.style.TextAlign
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import dev.sanskar.panel.R
 import dev.sanskar.panel.ui.theme.PanelTheme
 import dev.sanskar.panel.util.clickWithRipple
 
@@ -28,6 +32,8 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
+        if (Firebase.auth.currentUser != null) findNavController().navigate(R.id.action_homeFragment_to_loginFragment)
+
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {

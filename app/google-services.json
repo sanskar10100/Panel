@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "485416548253",
+    "project_id": "panel-10100",
+    "storage_bucket": "panel-10100.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:485416548253:android:0f2eef2528fbd5b3062174",
+        "android_client_info": {
+          "package_name": "dev.sanskar.panel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "485416548253-lss8h1pl9dntg3upld3189kqfnlf67ic.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.sanskar.panel",
+            "certificate_hash": "2e54c2e0431a6b6a77317b8bdb0a2ca8ffc803f8"
+          }
+        },
+        {
+          "client_id": "485416548253-4q2he09tl0jrr6dgo95dtrnq1qqm9t23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlrRTC-ebyUUpVgGjePRwgYzAZhSJ0zc0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "485416548253-4q2he09tl0jrr6dgo95dtrnq1qqm9t23.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
