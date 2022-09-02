@@ -1,25 +1,21 @@
 package dev.sanskar.panel.ui.create
 
 import android.os.Bundle
-import android.preference.PreferenceActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BackdropScaffold
-import androidx.compose.material.BackdropScaffoldState
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
@@ -36,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key.Companion.Back
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -72,12 +67,22 @@ class CreateFragment : Fragment() {
                     val scope = rememberCoroutineScope()
                     val keyboardController = LocalSoftwareKeyboardController.current
                     Scaffold(
-                        scaffoldState = scaffoldState
-                    ){
-                        LaunchedEffect(viewModel.snackbar) {
-                            if (viewModel.snackbar.isNotEmpty()) {
-                                scaffoldState.snackbarHostState.showSnackbar(viewModel.snackbar)
-                                viewModel.snackbar = ""
+                        scaffoldState = scaffoldState,
+                        drawerElevation = 5.dp,
+                        drawerShape = RoundedCornerShape(8.dp),
+                        drawerContent = {
+                            LazyColumn {
+                                items(viewModel.questions) {
+                                    Text(it.toString())
+                                }
+                            }
+                        }
+                    ) {
+                        LaunchedEffect(viewModel.addQuestionSnackbar) {
+                            if (viewModel.addQuestionSnackbar.isNotEmpty()) {
+                                backdropScaffoldState.reveal()
+                                scaffoldState.snackbarHostState.showSnackbar(viewModel.addQuestionSnackbar)
+                                viewModel.addQuestionSnackbar = ""
                             }
                         }
                         BackdropScaffold(
@@ -109,8 +114,8 @@ class CreateFragment : Fragment() {
         ) {
             Spacer(Modifier.height(16.dp))
             Text(
-                "Swipe right to see existing questions",
-                style = MaterialTheme.typography.h6,
+                "Swipe to right to see existing questions",
+                style = MaterialTheme.typography.subtitle2,
             )
             Spacer(Modifier.height(32.dp))
             PanelTextField(
