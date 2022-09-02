@@ -12,18 +12,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.Checkbox
-import androidx.compose.material.Icon
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.QuestionAnswer
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -34,8 +27,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierInfo
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.sanskar.panel.util.clickWithRipple
@@ -110,7 +101,7 @@ fun MultipleChoiceAnswer(
             val errorState by derivedStateOf {
                 startedTyping && value.isEmpty()
             }
-            AnswerField(
+            PanelTextField(
                 state = value,
                 modifier = Modifier.fillMaxWidth(),
                 isError = errorState,
@@ -164,7 +155,7 @@ fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, b
             val errorState by derivedStateOf {
                 startedTyping && value.isEmpty()
             }
-            AnswerField(
+            PanelTextField(
                 state = value,
                 modifier = Modifier.fillMaxWidth(),
                 isError = errorState,
@@ -201,53 +192,6 @@ fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, b
             )
         }
     }
-}
-
-@Composable
-fun StatefulAnswerField(modifier: Modifier = Modifier, onDone: (String) -> Unit) {
-    var value by remember { mutableStateOf("") }
-    var startedTyping by remember { mutableStateOf(false) }
-    val errorState by derivedStateOf {
-        startedTyping && value.isEmpty()
-    }
-    AnswerField(
-        state = value,
-        modifier = modifier,
-        isError = errorState,
-        onChanged = {
-            startedTyping = true
-            value = it
-        },
-        onDone = {
-            startedTyping = false
-            onDone(value)
-        }
-    )
-}
-
-@Composable
-fun AnswerField(state: String, modifier: Modifier = Modifier, isError: Boolean = false, onChanged: (String) -> Unit, onDone: (String) -> Unit, ) {
-    OutlinedTextField(
-        modifier = modifier
-            .fillMaxWidth(0.9f),
-        value = state,
-        onValueChange = {
-            onChanged(it)
-        },
-        label = { Text("Answer")},
-        placeholder = { Text("9.8") },
-        leadingIcon = { Icon(imageVector = Icons.Default.QuestionAnswer, contentDescription = null) },
-        isError = isError,
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = {
-                if (state.isNotEmpty()) onDone(state)
-            }
-        ),
-        maxLines = 10,
-    )
 }
 
 data class MultipleAnswerBuilder(
