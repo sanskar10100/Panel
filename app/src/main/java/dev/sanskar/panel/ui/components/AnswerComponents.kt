@@ -23,6 +23,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionAnswer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.sanskar.panel.util.clickWithRipple
 
@@ -43,7 +45,6 @@ fun BinaryAnswer(modifier: Modifier = Modifier, onSelected: (Boolean) -> Unit) {
     BoxWithConstraints(
         modifier = modifier
             .height(48.dp)
-            .width(72.dp)
             .border(3.dp, color = Color.Blue, RoundedCornerShape(8.dp))
             .padding(4.dp),
     ) {
@@ -111,7 +112,7 @@ fun MultipleChoiceAnswer(
             }
             AnswerField(
                 state = value,
-                modifier = modifier,
+                modifier = Modifier.fillMaxWidth(),
                 isError = errorState,
                 onChanged = {
                     startedTyping = true
@@ -119,9 +120,15 @@ fun MultipleChoiceAnswer(
                 },
                 onDone = {
                     startedTyping = false
-                    optionsState.add(it)
+                    if (it !in optionsState) optionsState.add(it)
                     value = ""
                 }
+            )
+
+            Spacer(Modifier.height(64.dp))
+            Text(
+                "Add options using the field above, then select the correct option to continue",
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -159,7 +166,7 @@ fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, b
             }
             AnswerField(
                 state = value,
-                modifier = modifier,
+                modifier = Modifier.fillMaxWidth(),
                 isError = errorState,
                 onChanged = {
                     startedTyping = true
@@ -167,21 +174,31 @@ fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, b
                 },
                 onDone = {
                     startedTyping = false
-                    optionsState.add(it)
+                    if (it !in optionsState) optionsState.add(it)
                     value = ""
                 }
             )
+            Spacer(Modifier.height(16.dp))
         }
         Button(
             onClick = {
-                if (builderMode.enabled) {
-                    builderMode.options = optionsState.toList()
-                    builderMode.selected = selected.toList()
+                if (optionsState.isNotEmpty() and selected.isNotEmpty()) {
+                    if (builderMode.enabled) {
+                        builderMode.options = optionsState.toList()
+                        builderMode.selected = selected.toList()
+                    }
+                    onSelected(selected.toList())
                 }
-                onSelected(selected.toList())
             }
         ) {
             Text("Submit")
+        }
+        if (builderMode.enabled) {
+            Spacer(Modifier.height(64.dp))
+            Text(
+                "Add options using the field above, select correct options, then press submit to continue",
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
@@ -226,7 +243,7 @@ fun AnswerField(state: String, modifier: Modifier = Modifier, isError: Boolean =
         ),
         keyboardActions = KeyboardActions(
             onDone = {
-                onDone(state)
+                if (state.isNotEmpty()) onDone(state)
             }
         ),
         maxLines = 10,
