@@ -24,3 +24,5 @@ fun Modifier.clickWithRipple(bounded: Boolean = true, onClick: () -> Unit) = com
         onClick = onClick,
     )
 }
+
+const val STRING_SEPARATOR = " "
