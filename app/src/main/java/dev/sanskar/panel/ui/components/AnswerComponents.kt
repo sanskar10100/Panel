@@ -7,13 +7,10 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,20 +29,17 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import dev.sanskar.panel.util.clickWithRipple
 
-enum class BinaryAnswerChoice {
-    TRUE,
-    FALSE
-}
-
 @Composable
-fun BinaryAnswer(modifier: Modifier = Modifier, onSelected: (BinaryAnswerChoice) -> Unit) {
+fun BinaryAnswer(modifier: Modifier = Modifier, onSelected: (Boolean) -> Unit) {
     BoxWithConstraints(
         modifier = modifier
             .height(48.dp)
@@ -59,7 +53,7 @@ fun BinaryAnswer(modifier: Modifier = Modifier, onSelected: (BinaryAnswerChoice)
                 .align(Alignment.CenterStart)
                 .padding(start = 8.dp)
                 .clickWithRipple {
-                    onSelected(BinaryAnswerChoice.TRUE)
+                    onSelected(true)
                 }
         )
         Box(
@@ -75,19 +69,24 @@ fun BinaryAnswer(modifier: Modifier = Modifier, onSelected: (BinaryAnswerChoice)
                 .align(Alignment.CenterEnd)
                 .padding(end = 8.dp)
                 .clickWithRipple {
-                    onSelected(BinaryAnswerChoice.FALSE)
+                    onSelected(false)
                 }
         )
     }
 }
 
 @Composable
-fun MultipleChoiceAnswer(options: List<String>, modifier: Modifier = Modifier, onSelected: (String) -> Unit) {
+fun MultipleChoiceAnswer(
+    options: List<String>,
+    modifier: Modifier = Modifier,
+    builderMode: MultipleAnswerBuilder = MultipleAnswerBuilder(),
+    onSelected: (String) -> Unit) {
     var selected by remember { mutableStateOf("") }
+    val optionsState = remember { options.toMutableStateList() }
     Column(
         modifier = modifier
     ) {
-        options.forEach { option ->
+        optionsState.forEach { option ->
             Row(
                 modifier = Modifier.clickWithRipple { onSelected(option) },
                 verticalAlignment = Alignment.CenterVertically
@@ -96,21 +95,47 @@ fun MultipleChoiceAnswer(options: List<String>, modifier: Modifier = Modifier, o
                 Spacer(Modifier.weight(1f))
                 RadioButton(selected = selected == option, onClick = {
                     selected = option
+                    if (builderMode.enabled) {
+                        builderMode.options = optionsState.toList()
+                        builderMode.selected = listOf(selected)
+                    }
                     onSelected(option)
                 })
             }
+        }
+        if (builderMode.enabled) {
+            var value by remember { mutableStateOf("") }
+            var startedTyping by remember { mutableStateOf(false) }
+            val errorState by derivedStateOf {
+                startedTyping && value.isEmpty()
+            }
+            AnswerField(
+                state = value,
+                modifier = modifier,
+                isError = errorState,
+                onChanged = {
+                    startedTyping = true
+                    value = it
+                },
+                onDone = {
+                    startedTyping = false
+                    optionsState.add(it)
+                    value = ""
+                }
+            )
         }
     }
 }
 
 @Composable
-fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, onSelected: (List<String>) -> Unit) {
+fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, builderMode: MultipleAnswerBuilder = MultipleAnswerBuilder(), onSelected: (List<String>) -> Unit) {
+    val optionsState = remember { options.toMutableStateList() }
     val selected = remember { mutableStateListOf<String>() }
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        options.forEach { option ->
+        optionsState.forEach { option ->
             Row(
                 modifier = Modifier
                     .clickWithRipple { if (option !in selected) selected.add(option) else selected.remove(option) },
@@ -126,8 +151,35 @@ fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, o
                 )
             }
         }
+        if (builderMode.enabled) {
+            var value by remember { mutableStateOf("") }
+            var startedTyping by remember { mutableStateOf(false) }
+            val errorState by derivedStateOf {
+                startedTyping && value.isEmpty()
+            }
+            AnswerField(
+                state = value,
+                modifier = modifier,
+                isError = errorState,
+                onChanged = {
+                    startedTyping = true
+                    value = it
+                },
+                onDone = {
+                    startedTyping = false
+                    optionsState.add(it)
+                    value = ""
+                }
+            )
+        }
         Button(
-            onClick = { onSelected(selected.toList()) },
+            onClick = {
+                if (builderMode.enabled) {
+                    builderMode.options = optionsState.toList()
+                    builderMode.selected = selected.toList()
+                }
+                onSelected(selected.toList())
+            }
         ) {
             Text("Submit")
         }
@@ -135,31 +187,54 @@ fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, o
 }
 
 @Composable
-fun AnswerField(modifier: Modifier = Modifier, onDone: (String) -> Unit, ) {
+fun StatefulAnswerField(modifier: Modifier = Modifier, onDone: (String) -> Unit) {
     var value by remember { mutableStateOf("") }
     var startedTyping by remember { mutableStateOf(false) }
     val errorState by derivedStateOf {
         startedTyping && value.isEmpty()
     }
+    AnswerField(
+        state = value,
+        modifier = modifier,
+        isError = errorState,
+        onChanged = {
+            startedTyping = true
+            value = it
+        },
+        onDone = {
+            startedTyping = false
+            onDone(value)
+        }
+    )
+}
 
+@Composable
+fun AnswerField(state: String, modifier: Modifier = Modifier, isError: Boolean = false, onChanged: (String) -> Unit, onDone: (String) -> Unit, ) {
     OutlinedTextField(
         modifier = modifier
             .fillMaxWidth(0.9f),
-        value = value,
+        value = state,
         onValueChange = {
-            value = it
-            startedTyping = true
+            onChanged(it)
         },
         label = { Text("Answer")},
         placeholder = { Text("9.8") },
         leadingIcon = { Icon(imageVector = Icons.Default.QuestionAnswer, contentDescription = null) },
-        isError = errorState,
+        isError = isError,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Done
         ),
         keyboardActions = KeyboardActions(
-            onDone = { if (!errorState) onDone(value) }
+            onDone = {
+                onDone(state)
+            }
         ),
         maxLines = 10,
     )
 }
+
+data class MultipleAnswerBuilder(
+    val enabled: Boolean = false,
+    var options: List<String> = mutableListOf(),
+    var selected: List<String> = mutableListOf(),
+)

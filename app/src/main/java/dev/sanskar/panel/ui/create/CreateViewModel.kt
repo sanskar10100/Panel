@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 enum class AnswerType {
+    NONE,
     BINARY,
     MCQ,
     MSQ,
@@ -15,13 +16,11 @@ enum class AnswerType {
 
 class CreateViewModel : ViewModel() {
     var showSelector by mutableStateOf(true)
-    var answerType = AnswerType.BINARY
-
+    var answerType by mutableStateOf(AnswerType.NONE)
 
     var question = ""
 
     fun selectAnswerType(type: AnswerType) {
-//        showSelector = false
         answerType = type
     }
 }

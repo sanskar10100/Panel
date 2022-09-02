@@ -1,9 +1,11 @@
 package dev.sanskar.panel.ui.create
 
 import android.os.Bundle
+import android.view.Display
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
@@ -33,16 +35,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import dev.sanskar.panel.ui.components.AnswerField
 import dev.sanskar.panel.ui.components.BinaryAnswer
+import dev.sanskar.panel.ui.components.MultipleAnswerBuilder
 import dev.sanskar.panel.ui.components.MultipleChoiceAnswer
 import dev.sanskar.panel.ui.components.MultipleSelectAnswer
+import dev.sanskar.panel.ui.components.StatefulAnswerField
 import dev.sanskar.panel.ui.theme.PanelTheme
+import dev.sanskar.panel.util.clickWithRipple
 
 class CreateFragment : Fragment() {
     private val viewModel by viewModels<CreateViewModel>()
@@ -77,8 +84,20 @@ class CreateFragment : Fragment() {
                 })
                 Spacer(Modifier.height(32.dp))
             }
-            AnswerTypeSelector()
+            val mcqBuilder = MultipleAnswerBuilder(true)
+            val msqBuilder = MultipleAnswerBuilder(true)
+            when (viewModel.answerType) {
+                AnswerType.NONE -> answerTypeSelector()
+                AnswerType.BINARY -> item { BinaryAnswer(onSelected = { display(message = it.toString()) }) }
+                AnswerType.MCQ -> item { MultipleChoiceAnswer(emptyList(), builderMode = mcqBuilder) { display(mcqBuilder.toString()) } }
+                AnswerType.MSQ -> item { MultipleSelectAnswer(emptyList(), builderMode = msqBuilder) { display(msqBuilder.toString()) } }
+                AnswerType.TEXT -> item { StatefulAnswerField {} }
+            }
         }
+    }
+
+    fun display(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     @Composable
@@ -111,11 +130,12 @@ class CreateFragment : Fragment() {
         )
     }
 
-    private fun LazyListScope.AnswerTypeSelector() {
+    private fun LazyListScope.answerTypeSelector() {
         item {
             AnimatedVisibility(
                 viewModel.showSelector,
                 modifier = Modifier
+                    .clickWithRipple { viewModel.selectAnswerType(AnswerType.BINARY) }
                     .fillMaxWidth(0.9f)
                     .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
                     .padding(8.dp)
@@ -134,6 +154,7 @@ class CreateFragment : Fragment() {
             AnimatedVisibility(
                 viewModel.showSelector,
                 modifier = Modifier
+                    .clickWithRipple { viewModel.selectAnswerType(AnswerType.MCQ) }
                     .fillMaxWidth(0.9f)
                     .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
                     .padding(8.dp)
@@ -141,7 +162,9 @@ class CreateFragment : Fragment() {
                 MultipleChoiceAnswer(
                     options = listOf("Option 1", "Option 2", "Option 3"),
                     onSelected = { },
-                    modifier = Modifier.padding(horizontal = 32.dp).clickable(false) {}
+                    modifier = Modifier
+                        .padding(horizontal = 32.dp)
+                        .clickable(false) {}
                 )
                 Spacer(Modifier.height(8.dp))
             }
@@ -152,6 +175,7 @@ class CreateFragment : Fragment() {
             AnimatedVisibility(
                 viewModel.showSelector,
                 modifier = Modifier
+                    .clickWithRipple { viewModel.selectAnswerType(AnswerType.MSQ) }
                     .fillMaxWidth(0.9f)
                     .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
                     .padding(8.dp)
@@ -159,7 +183,9 @@ class CreateFragment : Fragment() {
                 MultipleSelectAnswer(
                     options = listOf("Option 1", "Option 2", "Option 3"),
                     onSelected = { },
-                    modifier = Modifier.padding(horizontal = 32.dp).clickable(false) {}
+                    modifier = Modifier
+                        .padding(horizontal = 32.dp)
+                        .clickable(false) {}
                 )
                 Spacer(Modifier.height(8.dp))
             }
@@ -170,11 +196,12 @@ class CreateFragment : Fragment() {
             AnimatedVisibility(
                 viewModel.showSelector,
                 modifier = Modifier
+                    .clickWithRipple { viewModel.selectAnswerType(AnswerType.TEXT) }
                     .fillMaxWidth(0.9f)
                     .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
                     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
             ) {
-                AnswerField(
+                StatefulAnswerField(
                     modifier = Modifier.clickable(false) {}
                 ) {}
             }
