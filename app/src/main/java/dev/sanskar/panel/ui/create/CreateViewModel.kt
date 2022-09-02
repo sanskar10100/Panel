@@ -33,7 +33,7 @@ class CreateViewModel : ViewModel() {
     }
 
     fun addBinaryQuestion(correct: Boolean) {
-        questions.add(Question(questionText, AnswerType.BINARY.ordinal, correct.toString()))
+        questions.add(Question(questionText, AnswerType.BINARY, correct.toString()))
         clearState()
         Timber.d("Added binary question, now list: $questions")
         addQuestionSnackbar = "Added binary question"
@@ -41,21 +41,21 @@ class CreateViewModel : ViewModel() {
     }
 
     fun addMultipleChoiceQuestion(mcqBuilder: MultipleAnswerBuilder) {
-        questions.add(Question(questionText, AnswerType.MCQ.ordinal, mcqBuilder.selected[0], mcqBuilder.options))
+        questions.add(Question(questionText, AnswerType.MCQ, mcqBuilder.selected[0], mcqBuilder.options))
         clearState()
         Timber.d("Added mcq question, now list: $questions")
         addQuestionSnackbar = "Added MCQ question"
     }
 
     fun addMultipleSelectQuestion(msqBuilder: MultipleAnswerBuilder) {
-        questions.add(Question(questionText, AnswerType.MSQ.ordinal, msqBuilder.selected.joinToString(""), msqBuilder.options))
+        questions.add(Question(questionText, AnswerType.MSQ, msqBuilder.selected.joinToString(""), msqBuilder.options))
         clearState()
         Timber.d("Added msq question, now list: $questions")
         addQuestionSnackbar = "Added MSQ question"
     }
 
     fun addTextQuestion(text: String) {
-        questions.add(Question(text, AnswerType.TEXT.ordinal, text))
+        questions.add(Question(text, AnswerType.TEXT, text))
         clearState()
         Timber.d("Added text question, now list: $questions")
         addQuestionSnackbar = "Added text question"
