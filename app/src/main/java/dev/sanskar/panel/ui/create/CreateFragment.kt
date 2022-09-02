@@ -88,10 +88,10 @@ class CreateFragment : Fragment() {
             val msqBuilder = MultipleAnswerBuilder(true)
             when (viewModel.answerType) {
                 AnswerType.NONE -> answerTypeSelector()
-                AnswerType.BINARY -> item { BinaryAnswer(onSelected = { display(message = it.toString()) }) }
-                AnswerType.MCQ -> item { MultipleChoiceAnswer(emptyList(), builderMode = mcqBuilder) { display(mcqBuilder.toString()) } }
-                AnswerType.MSQ -> item { MultipleSelectAnswer(emptyList(), builderMode = msqBuilder) { display(msqBuilder.toString()) } }
-                AnswerType.TEXT -> item { StatefulAnswerField {} }
+                AnswerType.BINARY -> item { BinaryAnswer(modifier = Modifier.fillMaxWidth(0.7f), onSelected = { display(message = it.toString()) }) }
+                AnswerType.MCQ -> item { MultipleChoiceAnswer(emptyList(), Modifier.fillMaxWidth(0.9f), builderMode = mcqBuilder) { display(mcqBuilder.toString()) } }
+                AnswerType.MSQ -> item { MultipleSelectAnswer(emptyList(), Modifier.fillMaxWidth(0.9f), builderMode = msqBuilder) { display(msqBuilder.toString()) } }
+                AnswerType.TEXT -> item { StatefulAnswerField { display(it) } }
             }
         }
     }
@@ -132,11 +132,15 @@ class CreateFragment : Fragment() {
 
     private fun LazyListScope.answerTypeSelector() {
         item {
+            Text("Please select an answer type")
+        }
+
+        item {
             AnimatedVisibility(
                 viewModel.showSelector,
                 modifier = Modifier
                     .clickWithRipple { viewModel.selectAnswerType(AnswerType.BINARY) }
-                    .fillMaxWidth(0.9f)
+                    .fillMaxWidth(0.7f)
                     .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
                     .padding(8.dp)
             ) {
