@@ -8,8 +8,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -78,11 +81,16 @@ class CreateFragment : Fragment() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             stickyHeader {
-                Spacer(Modifier.height(32.dp))
-                QuestionField(onDone = {
-                    viewModel.question = it
-                })
-                Spacer(Modifier.height(32.dp))
+                Column(
+                    modifier = Modifier.background(Color.White),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(Modifier.height(32.dp))
+                    QuestionField(onDone = {
+                        viewModel.question = it
+                    })
+                    Spacer(Modifier.height(32.dp))
+                }
             }
             val mcqBuilder = MultipleAnswerBuilder(true)
             val msqBuilder = MultipleAnswerBuilder(true)
@@ -132,7 +140,11 @@ class CreateFragment : Fragment() {
 
     private fun LazyListScope.answerTypeSelector() {
         item {
-            Text("Please select an answer type")
+            Text(
+                "Please select an answer type",
+                style = MaterialTheme.typography.h6
+            )
+            Spacer(Modifier.height(32.dp))
         }
 
         item {
@@ -209,6 +221,7 @@ class CreateFragment : Fragment() {
                     modifier = Modifier.clickable(false) {}
                 ) {}
             }
+            Spacer(Modifier.height(32.dp))
         }
     }
 }
