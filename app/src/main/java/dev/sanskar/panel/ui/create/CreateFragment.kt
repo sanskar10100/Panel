@@ -125,7 +125,7 @@ class CreateFragment : Fragment() {
         ) {
             Spacer(Modifier.height(16.dp))
             Text(
-                "Swipe to right to see existing questions and create quiz",
+                "Swipe to right to see existing questions and finalize the quiz",
                 style = MaterialTheme.typography.subtitle2,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(8.dp)
