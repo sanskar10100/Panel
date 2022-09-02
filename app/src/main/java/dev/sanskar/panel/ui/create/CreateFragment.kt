@@ -20,10 +20,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,7 +57,18 @@ class CreateFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 PanelTheme {
-                    CreateScreen()
+                    val scaffoldState = rememberScaffoldState()
+                    Scaffold(
+                        scaffoldState = scaffoldState
+                    ) {
+                        CreateScreen(Modifier.padding(it))
+                        LaunchedEffect(viewModel.snackbar) {
+                            if (viewModel.snackbar.isNotEmpty()) {
+                                scaffoldState.snackbarHostState.showSnackbar(viewModel.snackbar)
+                                viewModel.snackbar = ""
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -62,9 +76,9 @@ class CreateFragment : Fragment() {
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun CreateScreen() {
+    fun CreateScreen(modifier: Modifier = Modifier) {
         LazyColumn(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
