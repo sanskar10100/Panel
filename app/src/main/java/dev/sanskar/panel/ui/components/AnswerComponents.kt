@@ -1,12 +1,11 @@
 package dev.sanskar.panel.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Checkbox
+import androidx.compose.material.Divider
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -33,37 +33,49 @@ import dev.sanskar.panel.util.clickWithRipple
 
 @Composable
 fun BinaryAnswer(modifier: Modifier = Modifier, onSelected: (Boolean) -> Unit) {
-    BoxWithConstraints(
+    Row(
         modifier = modifier
             .height(48.dp)
             .border(3.dp, color = Color.Blue, RoundedCornerShape(8.dp))
             .padding(4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            "True",
+        Box(
             modifier = Modifier
-                .align(Alignment.CenterStart)
-                .padding(start = 8.dp)
+                .fillMaxHeight()
+                .weight(1f)
                 .clickWithRipple {
                     onSelected(true)
-                }
+                },
+        ) {
+            Text(
+                "True",
+                modifier = Modifier
+                    .align(Alignment.Center),
+                textAlign = TextAlign . Center
+            )
+        }
+        Divider(
+            color = Color.Black,
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(1.dp)
         )
         Box(
             modifier = Modifier
-                .align(Alignment.Center)
-                .width(1.dp)
-                .height(maxHeight)
-                .background(Color.Red)
-        )
-        Text(
-            "False",
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = 8.dp)
+                .fillMaxHeight()
+                .weight(1f)
                 .clickWithRipple {
-                    onSelected(false)
-                }
-        )
+                    onSelected(true)
+                },
+        ) {
+            Text(
+                "False",
+                modifier = Modifier
+                    .align(Alignment.Center),
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
