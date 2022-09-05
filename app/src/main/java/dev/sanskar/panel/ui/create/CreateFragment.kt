@@ -166,7 +166,7 @@ class CreateFragment : Fragment() {
                     BinaryAnswer(
                         modifier = Modifier
                             .fillMaxWidth(0.7f)
-                            .padding(top = 8.dp),
+                            .padding(top = 16.dp),
                         onSelected = { viewModel.addBinaryQuestion(it) }
                     )
                 }
