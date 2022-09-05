@@ -53,7 +53,7 @@ fun PanelTextField(
 ) {
     OutlinedTextField(
         modifier = modifier
-            .fillMaxWidth(0.9f),
+            .fillMaxWidth(),
         value = state,
         onValueChange = {
             onChanged(it)
