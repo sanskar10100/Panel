@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +18,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BackdropScaffold
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.Card
@@ -51,7 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import dev.sanskar.panel.ui.components.BinaryAnswer
-import dev.sanskar.panel.ui.components.FullWithColumnWithCenteredChildren
+import dev.sanskar.panel.ui.components.FullWidthColumnWithCenteredChildren
 import dev.sanskar.panel.ui.components.MultipleAnswerBuilder
 import dev.sanskar.panel.ui.components.MultipleChoiceAnswer
 import dev.sanskar.panel.ui.components.MultipleSelectAnswer
@@ -70,14 +74,15 @@ class CreateFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 PanelTheme {
                     val scaffoldState = rememberScaffoldState()
-                    val backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Revealed)
+                    val backdropScaffoldState =
+                        rememberBackdropScaffoldState(BackdropValue.Revealed)
                     val scope = rememberCoroutineScope()
                     val keyboardController = LocalSoftwareKeyboardController.current
                     Scaffold(
@@ -105,7 +110,7 @@ class CreateFragment : Fragment() {
                                     }
                                 }
                             },
-                            frontLayerContent =  { AnswerContent() },
+                            frontLayerContent = { AnswerContent() },
                             modifier = Modifier.padding(it),
                             scaffoldState = backdropScaffoldState,
                             backLayerBackgroundColor = Color(0xFFF5F5F5),
@@ -147,11 +152,11 @@ class CreateFragment : Fragment() {
 
     @Composable
     fun AnswerContent(modifier: Modifier = Modifier) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        BackHandler(viewModel.answerType != AnswerType.NONE) {
+            viewModel.answerType = AnswerType.NONE
+        }
+
+        FullWidthColumnWithCenteredChildren {
             when (viewModel.answerType) {
                 AnswerType.NONE -> AnswerTypeSelector()
                 AnswerType.BINARY -> {
@@ -175,7 +180,9 @@ class CreateFragment : Fragment() {
                     }
                 }
                 AnswerType.TEXT -> {
-                    StatefulPanelTextField { viewModel.addTextQuestion(it) }
+                    StatefulPanelTextField(
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) { viewModel.addTextQuestion(it) }
                 }
             }
         }
@@ -186,78 +193,79 @@ class CreateFragment : Fragment() {
 
         Spacer(Modifier.height(16.dp))
         AnimatedVisibility(viewModel.showSelector.value) {
-            Text(
-                "Please select an answer type",
-                style = MaterialTheme.typography.h6
-            )
-        }
-        Spacer(Modifier.height(32.dp))
-
-        AnimatedVisibility(
-            viewModel.showSelector.value,
-            modifier = Modifier
-                .clickWithRipple { viewModel.selectAnswerType(AnswerType.BINARY) }
-                .fillMaxWidth(0.7f)
-                .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
-                .padding(8.dp)
-        ) {
-            BinaryAnswer(
-                modifier = Modifier.clickable(false) {}
+            FullWidthColumnWithCenteredChildren(
+                modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
+                Text(
+                    "Please select an answer type",
+                    style = MaterialTheme.typography.h6
+                )
+                Spacer(Modifier.height(32.dp))
 
+                Box(
+                    modifier = Modifier
+                        .clickWithRipple { viewModel.selectAnswerType(AnswerType.BINARY) }
+                        .fillMaxWidth(0.7f)
+                        .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
+                        .padding(8.dp)
+                ) {
+                    BinaryAnswer(
+                        modifier = Modifier.clickable(false) {}
+                    ) {
+
+                    }
+                }
+
+                Spacer(Modifier.height(32.dp))
+                Box(
+                    modifier = Modifier
+                        .clickWithRipple { viewModel.selectAnswerType(AnswerType.MCQ) }
+                        .fillMaxWidth(0.9f)
+                        .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
+                        .padding(8.dp)
+                ) {
+                    MultipleChoiceAnswer(
+                        options = listOf("Option 1", "Option 2", "Option 3"),
+                        onSelected = { },
+                        modifier = Modifier
+                            .padding(horizontal = 32.dp)
+                            .clickable(false) {}
+                    )
+                }
+
+                Spacer(Modifier.height(32.dp))
+                Box(
+                    modifier = Modifier
+                        .clickWithRipple { viewModel.selectAnswerType(AnswerType.MSQ) }
+                        .fillMaxWidth(0.9f)
+                        .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
+                        .padding(8.dp)
+                ) {
+                    MultipleSelectAnswer(
+                        options = listOf("Option 1", "Option 2", "Option 3"),
+                        onSelected = { },
+                        modifier = Modifier
+                            .padding(horizontal = 32.dp)
+                            .clickable(false) {}
+                    )
+                }
+
+                Spacer(Modifier.height(32.dp))
+                Box(
+                    modifier = Modifier
+                        .clickWithRipple { viewModel.selectAnswerType(AnswerType.TEXT) }
+                        .fillMaxWidth(0.9f)
+                        .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
+                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    StatefulPanelTextField(
+                        modifier = Modifier.clickable(false) {}
+                    ) {}
+                }
+                Spacer(Modifier.height(32.dp))
             }
         }
-
-        Spacer(Modifier.height(32.dp))
-        AnimatedVisibility(
-            viewModel.showSelector.value,
-            modifier = Modifier
-                .clickWithRipple { viewModel.selectAnswerType(AnswerType.MCQ) }
-                .fillMaxWidth(0.9f)
-                .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
-                .padding(8.dp)
-        ) {
-            MultipleChoiceAnswer(
-                options = listOf("Option 1", "Option 2", "Option 3"),
-                onSelected = { },
-                modifier = Modifier
-                    .padding(horizontal = 32.dp)
-                    .clickable(false) {}
-            )
-        }
-
-        Spacer(Modifier.height(32.dp))
-        AnimatedVisibility(
-            viewModel.showSelector.value,
-            modifier = Modifier
-                .clickWithRipple { viewModel.selectAnswerType(AnswerType.MSQ) }
-                .fillMaxWidth(0.9f)
-                .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
-                .padding(8.dp)
-        ) {
-            MultipleSelectAnswer(
-                options = listOf("Option 1", "Option 2", "Option 3"),
-                onSelected = { },
-                modifier = Modifier
-                    .padding(horizontal = 32.dp)
-                    .clickable(false) {}
-            )
-        }
-
-        Spacer(Modifier.height(32.dp))
-        AnimatedVisibility(
-            viewModel.showSelector.value,
-            modifier = Modifier
-                .clickWithRipple { viewModel.selectAnswerType(AnswerType.TEXT) }
-                .fillMaxWidth(0.9f)
-                .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
-                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-        ) {
-            StatefulPanelTextField(
-                modifier = Modifier.clickable(false) {}
-            ) {}
-        }
-        Spacer(Modifier.height(32.dp))
     }
 
     @OptIn(ExperimentalMaterialApi::class)
@@ -276,9 +284,9 @@ class CreateFragment : Fragment() {
                         .padding(horizontal = 2.dp),
                     elevation = 3.dp,
                     shape = RoundedCornerShape(8.dp),
-                    onClick = { expanded = !expanded}
+                    onClick = { expanded = !expanded }
                 ) {
-                    FullWithColumnWithCenteredChildren(
+                    FullWidthColumnWithCenteredChildren(
                         modifier = Modifier.padding(8.dp)
                     ) {
                         Text(
@@ -297,7 +305,7 @@ class CreateFragment : Fragment() {
                                     )
                                 }
                                 AnswerType.MCQ -> {
-                                    FullWithColumnWithCenteredChildren {
+                                    FullWidthColumnWithCenteredChildren {
                                         question.option.forEach {
                                             Row(
                                                 verticalAlignment = Alignment.CenterVertically
@@ -311,7 +319,7 @@ class CreateFragment : Fragment() {
                                 }
                                 AnswerType.MSQ -> {
                                     val answers = question.correct.getMultipleCorrectAnswers()
-                                    FullWithColumnWithCenteredChildren {
+                                    FullWidthColumnWithCenteredChildren {
                                         question.option.forEach {
                                             Row(
                                                 verticalAlignment = Alignment.CenterVertically
