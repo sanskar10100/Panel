@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import dev.sanskar.panel.ui.components.AnswerBuilder
 import dev.sanskar.panel.ui.data.AnswerType
 import dev.sanskar.panel.ui.data.Question
+import dev.sanskar.panel.util.STRING_SEPARATOR
 import timber.log.Timber
 
 class CreateViewModel : ViewModel() {
@@ -48,7 +49,8 @@ class CreateViewModel : ViewModel() {
     }
 
     fun addMultipleSelectQuestion(msqBuilder: AnswerBuilder) {
-        questions.add(Question(questionText, AnswerType.MSQ, msqBuilder.selected.joinToString(""), msqBuilder.options))
+        questions.add(Question(questionText, AnswerType.MSQ, msqBuilder.selected.joinToString(
+            STRING_SEPARATOR), msqBuilder.options))
         clearState()
         Timber.d("Added msq question, now list: $questions")
         addQuestionSnackbar = "Added MSQ question"
