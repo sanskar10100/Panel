@@ -57,9 +57,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import dev.sanskar.panel.ui.components.AnswerBuilder
 import dev.sanskar.panel.ui.components.BinaryAnswer
 import dev.sanskar.panel.ui.components.FullWidthColumnWithCenteredChildren
-import dev.sanskar.panel.ui.components.MultipleAnswerBuilder
 import dev.sanskar.panel.ui.components.MultipleChoiceAnswer
 import dev.sanskar.panel.ui.components.MultipleSelectAnswer
 import dev.sanskar.panel.ui.components.PanelTextField
@@ -167,11 +167,12 @@ class CreateFragment : Fragment() {
                         modifier = Modifier
                             .fillMaxWidth(0.7f)
                             .padding(top = 16.dp),
+                        builderMode = AnswerBuilder(true),
                         onSelected = { viewModel.addBinaryQuestion(it) }
                     )
                 }
                 AnswerType.MCQ -> {
-                    val mcqBuilder = MultipleAnswerBuilder(true)
+                    val mcqBuilder = AnswerBuilder(true)
                     MultipleChoiceAnswer(emptyList(),
                         Modifier.fillMaxWidth(0.9f),
                         builderMode = mcqBuilder) {
@@ -179,7 +180,7 @@ class CreateFragment : Fragment() {
                     }
                 }
                 AnswerType.MSQ -> {
-                    val msqBuilder = MultipleAnswerBuilder(true)
+                    val msqBuilder = AnswerBuilder(true)
                     MultipleSelectAnswer(emptyList(),
                         Modifier.fillMaxWidth(0.9f),
                         builderMode = msqBuilder) {

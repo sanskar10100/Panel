@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import dev.sanskar.panel.ui.components.MultipleAnswerBuilder
+import dev.sanskar.panel.ui.components.AnswerBuilder
 import dev.sanskar.panel.ui.data.AnswerType
 import dev.sanskar.panel.ui.data.Question
 import timber.log.Timber
@@ -40,14 +40,14 @@ class CreateViewModel : ViewModel() {
 
     }
 
-    fun addMultipleChoiceQuestion(mcqBuilder: MultipleAnswerBuilder) {
+    fun addMultipleChoiceQuestion(mcqBuilder: AnswerBuilder) {
         questions.add(Question(questionText, AnswerType.MCQ, mcqBuilder.selected[0], mcqBuilder.options))
         clearState()
         Timber.d("Added mcq question, now list: $questions")
         addQuestionSnackbar = "Added MCQ question"
     }
 
-    fun addMultipleSelectQuestion(msqBuilder: MultipleAnswerBuilder) {
+    fun addMultipleSelectQuestion(msqBuilder: AnswerBuilder) {
         questions.add(Question(questionText, AnswerType.MSQ, msqBuilder.selected.joinToString(""), msqBuilder.options))
         clearState()
         Timber.d("Added msq question, now list: $questions")

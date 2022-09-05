@@ -32,47 +32,56 @@ import androidx.compose.ui.unit.dp
 import dev.sanskar.panel.util.clickWithRipple
 
 @Composable
-fun BinaryAnswer(modifier: Modifier = Modifier, onSelected: (Boolean) -> Unit) {
-    Row(
-        modifier = modifier
-            .height(48.dp)
-            .border(3.dp, color = Color.Blue, RoundedCornerShape(8.dp))
-            .padding(4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .weight(1f)
-                .clickWithRipple {
-                    onSelected(true)
-                },
+fun BinaryAnswer(modifier: Modifier = Modifier, builderMode: AnswerBuilder = AnswerBuilder(), onSelected: (Boolean) -> Unit) {
+    FullWidthColumnWithCenteredChildren {
+        Row(
+            modifier = modifier
+                .height(48.dp)
+                .border(3.dp, color = Color.Blue, RoundedCornerShape(8.dp))
+                .padding(4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                "True",
+            Box(
                 modifier = Modifier
-                    .align(Alignment.Center),
-                textAlign = TextAlign . Center
+                    .fillMaxHeight()
+                    .weight(1f)
+                    .clickWithRipple {
+                        onSelected(true)
+                    },
+            ) {
+                Text(
+                    "True",
+                    modifier = Modifier
+                        .align(Alignment.Center),
+                    textAlign = TextAlign.Center
+                )
+            }
+            Divider(
+                color = Color.Black,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(1.dp)
             )
-        }
-        Divider(
-            color = Color.Black,
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(1.dp)
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .weight(1f)
-                .clickWithRipple {
-                    onSelected(true)
-                },
-        ) {
-            Text(
-                "False",
+            Box(
                 modifier = Modifier
-                    .align(Alignment.Center),
+                    .fillMaxHeight()
+                    .weight(1f)
+                    .clickWithRipple {
+                        onSelected(true)
+                    },
+            ) {
+                Text(
+                    "False",
+                    modifier = Modifier
+                        .align(Alignment.Center),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+        if (builderMode.enabled) {
+            Spacer(Modifier.height(64.dp))
+            Text(
+                "Select one of the possible options as the correct answer to continue",
                 textAlign = TextAlign.Center
             )
         }
@@ -83,7 +92,7 @@ fun BinaryAnswer(modifier: Modifier = Modifier, onSelected: (Boolean) -> Unit) {
 fun MultipleChoiceAnswer(
     options: List<String>,
     modifier: Modifier = Modifier,
-    builderMode: MultipleAnswerBuilder = MultipleAnswerBuilder(),
+    builderMode: AnswerBuilder = AnswerBuilder(),
     onSelected: (String) -> Unit) {
     var selected by remember { mutableStateOf("") }
     val optionsState = remember { options.toMutableStateList() }
@@ -138,7 +147,7 @@ fun MultipleChoiceAnswer(
 }
 
 @Composable
-fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, builderMode: MultipleAnswerBuilder = MultipleAnswerBuilder(), onSelected: (List<String>) -> Unit) {
+fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, builderMode: AnswerBuilder = AnswerBuilder(), onSelected: (List<String>) -> Unit) {
     val optionsState = remember { options.toMutableStateList() }
     val selected = remember { mutableStateListOf<String>() }
     Column(
@@ -206,7 +215,7 @@ fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, b
     }
 }
 
-data class MultipleAnswerBuilder(
+data class AnswerBuilder(
     val enabled: Boolean = false,
     var options: List<String> = mutableListOf(),
     var selected: List<String> = mutableListOf(),
