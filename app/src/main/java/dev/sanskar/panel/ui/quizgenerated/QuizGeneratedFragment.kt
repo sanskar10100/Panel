@@ -102,7 +102,7 @@ class QuizGeneratedFragment : Fragment() {
                         onClick = {
                             val intent = Intent().apply {
                                 action = Intent.ACTION_SEND
-                                putExtra(Intent.EXTRA_TEXT, "https://panel.sanskar10100.tech/quiz/${state.data}")
+                                putExtra(Intent.EXTRA_TEXT, "https://sanskar10100.tech/panel/quiz/${state.data}")
                                 type = "text/plain"
                             }
                             startActivity(Intent.createChooser(intent, "Share quiz link"))
