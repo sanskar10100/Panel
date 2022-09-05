@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BackdropScaffold
 import androidx.compose.material.BackdropValue
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
 import androidx.compose.material.ExperimentalMaterialApi
@@ -56,7 +57,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
+import dev.sanskar.panel.R
 import dev.sanskar.panel.ui.components.AnswerBuilder
 import dev.sanskar.panel.ui.components.BinaryAnswer
 import dev.sanskar.panel.ui.components.FullWidthColumnWithCenteredChildren
@@ -71,7 +74,7 @@ import dev.sanskar.panel.util.clickWithRipple
 import kotlinx.coroutines.launch
 
 class CreateFragment : Fragment() {
-    private val viewModel by viewModels<CreateViewModel>()
+    private val viewModel by navGraphViewModels<CreateViewModel>(R.id.graph_create)
 
     @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
     override fun onCreateView(
@@ -314,62 +317,67 @@ class CreateFragment : Fragment() {
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun CurrentQuestionsList(modifier: Modifier = Modifier) {
-        LazyColumn(
-            modifier = modifier.fillMaxWidth()
-        ) {
-            items(viewModel.questions) { question ->
-                var expanded by remember { mutableStateOf(false) }
-                val spacerHeight by animateDpAsState(if (expanded) 8.dp else 2.dp)
-                Spacer(Modifier.height(spacerHeight))
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 2.dp),
-                    elevation = 3.dp,
-                    shape = RoundedCornerShape(8.dp),
-                    onClick = { expanded = !expanded }
-                ) {
-                    FullWidthColumnWithCenteredChildren(
-                        modifier = Modifier.padding(8.dp)
+        FullWidthColumnWithCenteredChildren {
+            LazyColumn(
+                modifier = modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                items(viewModel.questions) { question ->
+                    var expanded by remember { mutableStateOf(false) }
+                    val spacerHeight by animateDpAsState(if (expanded) 8.dp else 2.dp)
+                    Spacer(Modifier.height(spacerHeight))
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 2.dp),
+                        elevation = 3.dp,
+                        shape = RoundedCornerShape(8.dp),
+                        onClick = { expanded = !expanded }
                     ) {
-                        Text(
-                            text = question.questionText,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        AnimatedVisibility(visible = expanded) {
-                            when (question.type) {
-                                AnswerType.NONE -> {}
-                                AnswerType.BINARY -> Text("Correct Answer: ${question.correct}")
-                                AnswerType.TEXT -> {
-                                    OutlinedTextField(
-                                        value = question.correct,
-                                        onValueChange = { },
-                                        readOnly = true
-                                    )
-                                }
-                                AnswerType.MCQ -> {
-                                    FullWidthColumnWithCenteredChildren {
-                                        question.option.forEach {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Text(it)
-                                                Spacer(Modifier.weight(1f))
-                                                RadioButton(it == question.correct, onClick = { })
+                        FullWidthColumnWithCenteredChildren(
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text(
+                                text = question.questionText,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            AnimatedVisibility(visible = expanded) {
+                                when (question.type) {
+                                    AnswerType.NONE -> {}
+                                    AnswerType.BINARY -> Text("Correct Answer: ${question.correct}")
+                                    AnswerType.TEXT -> {
+                                        OutlinedTextField(
+                                            value = question.correct,
+                                            onValueChange = { },
+                                            readOnly = true
+                                        )
+                                    }
+                                    AnswerType.MCQ -> {
+                                        FullWidthColumnWithCenteredChildren {
+                                            question.options.forEach {
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(it)
+                                                    Spacer(Modifier.weight(1f))
+                                                    RadioButton(it == question.correct,
+                                                        onClick = { })
+                                                }
                                             }
                                         }
                                     }
-                                }
-                                AnswerType.MSQ -> {
-                                    val answers = question.correct.getMultipleCorrectAnswers()
-                                    FullWidthColumnWithCenteredChildren {
-                                        question.option.forEach {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Text(it)
-                                                Spacer(Modifier.weight(1f))
-                                                Checkbox(it in answers, onCheckedChange = { })
+                                    AnswerType.MSQ -> {
+                                        val answers = question.correct.getMultipleCorrectAnswers()
+                                        FullWidthColumnWithCenteredChildren {
+                                            question.options.forEach {
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(it)
+                                                    Spacer(Modifier.weight(1f))
+                                                    Checkbox(it in answers, onCheckedChange = { })
+                                                }
                                             }
                                         }
                                     }
@@ -377,8 +385,17 @@ class CreateFragment : Fragment() {
                             }
                         }
                     }
+                    Spacer(Modifier.height(spacerHeight))
                 }
-                Spacer(Modifier.height(spacerHeight))
+            }
+            Spacer(Modifier.height(8.dp))
+            if (viewModel.questions.isNotEmpty()) {
+                Button(
+                    modifier = Modifier.fillMaxWidth(0.9f),
+                    onClick = { findNavController().navigate(R.id.action_createFragment_to_quizGeneratedFragment) }
+                ) {
+                    Text("Generate Quiz")
+                }
             }
         }
     }

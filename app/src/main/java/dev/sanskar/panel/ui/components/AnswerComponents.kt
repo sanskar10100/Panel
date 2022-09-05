@@ -96,24 +96,26 @@ fun MultipleChoiceAnswer(
     onSelected: (String) -> Unit) {
     var selected by remember { mutableStateOf("") }
     val optionsState = remember { options.toMutableStateList() }
+    val select = { option: String ->
+        selected = option
+        if (builderMode.enabled) {
+            builderMode.options = optionsState.toList()
+            builderMode.selected = listOf(selected)
+        }
+        onSelected(option)
+    }
+
     Column(
         modifier = modifier
     ) {
         optionsState.forEach { option ->
             Row(
-                modifier = Modifier.clickWithRipple { onSelected(option) },
+                modifier = Modifier.clickWithRipple { select(option) },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = option)
                 Spacer(Modifier.weight(1f))
-                RadioButton(selected = selected == option, onClick = {
-                    selected = option
-                    if (builderMode.enabled) {
-                        builderMode.options = optionsState.toList()
-                        builderMode.selected = listOf(selected)
-                    }
-                    onSelected(option)
-                })
+                RadioButton(selected = selected == option, onClick = { select(option) })
             }
         }
         if (builderMode.enabled) {
@@ -150,6 +152,10 @@ fun MultipleChoiceAnswer(
 fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, builderMode: AnswerBuilder = AnswerBuilder(), onSelected: (List<String>) -> Unit) {
     val optionsState = remember { options.toMutableStateList() }
     val selected = remember { mutableStateListOf<String>() }
+    val select = { option: String ->
+        if (option !in selected) selected.add(option) else selected.remove(option)
+    }
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -157,16 +163,14 @@ fun MultipleSelectAnswer(options: List<String>, modifier: Modifier = Modifier, b
         optionsState.forEach { option ->
             Row(
                 modifier = Modifier
-                    .clickWithRipple { if (option !in selected) selected.add(option) else selected.remove(option) },
+                    .clickWithRipple { select(option) },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = option)
                 Spacer(Modifier.weight(1f))
                 Checkbox(
                     checked = option in selected,
-                    onCheckedChange = {
-                        if (option !in selected) selected.add(option) else selected.remove(option)
-                    }
+                    onCheckedChange = { select(option) }
                 )
             }
         }

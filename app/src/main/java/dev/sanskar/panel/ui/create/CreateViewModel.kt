@@ -6,10 +6,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import dev.sanskar.panel.ui.components.AnswerBuilder
 import dev.sanskar.panel.ui.data.AnswerType
 import dev.sanskar.panel.ui.data.Question
+import dev.sanskar.panel.ui.data.Quiz
 import dev.sanskar.panel.util.STRING_SEPARATOR
+import dev.sanskar.panel.util.UiState
 import timber.log.Timber
 
 class CreateViewModel : ViewModel() {
@@ -23,6 +27,8 @@ class CreateViewModel : ViewModel() {
     var addQuestionSnackbar by mutableStateOf("")
 
     var questionText by mutableStateOf("")
+
+    var quizPushId by mutableStateOf<UiState<String>>(UiState.Loading)
 
     fun selectAnswerType(type: AnswerType) {
         answerType = type
@@ -61,5 +67,45 @@ class CreateViewModel : ViewModel() {
         clearState()
         Timber.d("Added text question, now list: $questions")
         addQuestionSnackbar = "Added text question"
+    }
+
+    fun pushQuizToFirebase() {
+        quizPushId = UiState.Loading
+        var successfulPushCount = 0
+
+        Firebase
+            .firestore
+            .collection("quizzes")
+            .add(Quiz(questions.size))
+            .addOnSuccessListener { ref ->
+                questions.forEachIndexed { index, question ->
+                    Firebase.firestore
+                        .collection("quizzes")
+                        .document(ref.id)
+                        .collection("questions")
+                        .document(index.toString())
+                        .set(question)
+                        .addOnSuccessListener {
+                            successfulPushCount ++
+                            if (successfulPushCount == questions.size) {
+                                quizPushId = UiState.Success(ref.id)
+                            }
+                        }
+                        .addOnFailureListener {
+                            quizPushId = UiState.Error("There was an error while creating your quiz, please try again!")
+                            Timber.d("Error while pushing quiz to firebase: $it")
+                            // Cleanup if unsuccessful
+                            Firebase
+                                .firestore
+                                .collection("quizzes")
+                                .document(ref.id)
+                                .delete()
+                        }
+                }
+            }
+            .addOnFailureListener {
+                quizPushId = UiState.Error("There was an error while creating your quiz, please try again!")
+                Timber.d("Error while pushing quiz to firebase: $it")
+            }
     }
 }
