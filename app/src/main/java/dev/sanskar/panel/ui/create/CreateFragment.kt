@@ -183,13 +183,15 @@ class CreateFragment : Fragment() {
 
     @Composable
     private fun AnswerTypeSelector() {
+
+        Spacer(Modifier.height(16.dp))
         AnimatedVisibility(viewModel.showSelector.value) {
             Text(
                 "Please select an answer type",
                 style = MaterialTheme.typography.h6
             )
-            Spacer(Modifier.height(64.dp))
         }
+        Spacer(Modifier.height(32.dp))
 
         AnimatedVisibility(
             viewModel.showSelector.value,
@@ -204,7 +206,6 @@ class CreateFragment : Fragment() {
             ) {
 
             }
-            Spacer(Modifier.height(8.dp))
         }
 
         Spacer(Modifier.height(32.dp))
@@ -223,7 +224,6 @@ class CreateFragment : Fragment() {
                     .padding(horizontal = 32.dp)
                     .clickable(false) {}
             )
-            Spacer(Modifier.height(8.dp))
         }
 
         Spacer(Modifier.height(32.dp))
@@ -242,7 +242,6 @@ class CreateFragment : Fragment() {
                     .padding(horizontal = 32.dp)
                     .clickable(false) {}
             )
-            Spacer(Modifier.height(8.dp))
         }
 
         Spacer(Modifier.height(32.dp))
