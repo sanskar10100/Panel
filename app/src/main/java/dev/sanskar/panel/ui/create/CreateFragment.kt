@@ -7,12 +7,15 @@ import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -160,8 +163,12 @@ class CreateFragment : Fragment() {
             when (viewModel.answerType) {
                 AnswerType.NONE -> AnswerTypeSelector()
                 AnswerType.BINARY -> {
-                    BinaryAnswer(modifier = Modifier.fillMaxWidth(0.7f),
-                        onSelected = { viewModel.addBinaryQuestion(it) })
+                    BinaryAnswer(
+                        modifier = Modifier
+                            .fillMaxWidth(0.7f)
+                            .padding(top = 8.dp),
+                        onSelected = { viewModel.addBinaryQuestion(it) }
+                    )
                 }
                 AnswerType.MCQ -> {
                     val mcqBuilder = MultipleAnswerBuilder(true)
@@ -204,8 +211,8 @@ class CreateFragment : Fragment() {
 
                 Box(
                     modifier = Modifier
-                        .clickWithRipple { viewModel.selectAnswerType(AnswerType.BINARY) }
                         .fillMaxWidth(0.7f)
+                        .height(IntrinsicSize.Min)
                         .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
                         .padding(8.dp)
                 ) {
@@ -214,13 +221,21 @@ class CreateFragment : Fragment() {
                     ) {
 
                     }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Transparent)
+                            .clickWithRipple {
+                                viewModel.selectAnswerType(AnswerType.BINARY)
+                            },
+                    )
                 }
 
                 Spacer(Modifier.height(32.dp))
                 Box(
                     modifier = Modifier
-                        .clickWithRipple { viewModel.selectAnswerType(AnswerType.MCQ) }
                         .fillMaxWidth(0.9f)
+                        .height(IntrinsicSize.Min)
                         .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
                         .padding(8.dp)
                 ) {
@@ -231,13 +246,22 @@ class CreateFragment : Fragment() {
                             .padding(horizontal = 32.dp)
                             .clickable(false) {}
                     )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Transparent)
+                            .clickWithRipple {
+                                viewModel.selectAnswerType(AnswerType.MCQ)
+                            },
+                    )
                 }
 
                 Spacer(Modifier.height(32.dp))
                 Box(
                     modifier = Modifier
-                        .clickWithRipple { viewModel.selectAnswerType(AnswerType.MSQ) }
                         .fillMaxWidth(0.9f)
+                        .height(IntrinsicSize.Min)
                         .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
                         .padding(8.dp)
                 ) {
@@ -248,13 +272,22 @@ class CreateFragment : Fragment() {
                             .padding(horizontal = 32.dp)
                             .clickable(false) {}
                     )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Transparent)
+                            .clickWithRipple {
+                                viewModel.selectAnswerType(AnswerType.MSQ)
+                            },
+                    )
                 }
 
                 Spacer(Modifier.height(32.dp))
                 Box(
                     modifier = Modifier
-                        .clickWithRipple { viewModel.selectAnswerType(AnswerType.TEXT) }
                         .fillMaxWidth(0.9f)
+                        .height(IntrinsicSize.Min)
                         .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
                         .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
                     contentAlignment = Alignment.Center
@@ -262,6 +295,15 @@ class CreateFragment : Fragment() {
                     StatefulPanelTextField(
                         modifier = Modifier.clickable(false) {}
                     ) {}
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Transparent)
+                            .clickWithRipple {
+                                viewModel.selectAnswerType(AnswerType.TEXT)
+                            },
+                    )
                 }
                 Spacer(Modifier.height(32.dp))
             }
