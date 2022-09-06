@@ -4,26 +4,38 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.tooling.preview.Preview
@@ -92,7 +104,7 @@ class PlayQuizFragment : Fragment() {
         }
     }
 
-    @OptIn(ExperimentalPagerApi::class)
+    @OptIn(ExperimentalPagerApi::class, ExperimentalAnimationApi::class)
     @Composable
     fun Questions(questions: SnapshotStateList<Question>, modifier: Modifier = Modifier) {
 
@@ -104,7 +116,7 @@ class PlayQuizFragment : Fragment() {
                 viewModel.nextPage.collect {
                     if (it) {
                         if (pagerState.currentPage < questions.size - 1) {
-                            delay(500)
+                            delay(1000)
                             pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         } else {
                             delay(1000)
@@ -125,13 +137,18 @@ class PlayQuizFragment : Fragment() {
                         enabled = questions[questionNumber].answerState == AnswerState.Unanswered,
                     )
 
-                    if (questions[questionNumber].answerState != AnswerState.Unanswered) {
-                        if (questions[questionNumber].answerState == AnswerState.Correct) {
-                            Text("Correct!")
-                        } else {
-                            Text("Incorrect!")
+                    Spacer(Modifier.height(32.dp))
+
+                    AnimatedContent(targetState = questions[questionNumber].answerState) { state ->
+                        if (state != AnswerState.Unanswered) {
+                            if (state == AnswerState.Correct) {
+                                CorrectAnswerIndicator()
+                            } else {
+                                IncorrectAnswerIndicator()
+                            }
                         }
                     }
+
                 }
             }
             Spacer(Modifier.weight(1f))
@@ -164,6 +181,56 @@ class PlayQuizFragment : Fragment() {
                     }
                 }
             }
+        }
+    }
+
+    @Composable
+    fun CorrectAnswerIndicator(modifier: Modifier = Modifier) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth(0.8f)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFF81C784)),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = "Correct Answer",
+                modifier = Modifier
+                    .padding(16.dp)
+                    .scale(1.5f)
+            )
+            Spacer(Modifier.width(16.dp))
+            Text(
+                text = "That's correct!",
+                style = MaterialTheme.typography.h6,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+    }
+
+    @Composable
+    fun IncorrectAnswerIndicator(modifier: Modifier = Modifier) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth(0.8f)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFFF06292)),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Incorrect Answer",
+                modifier = Modifier
+                    .padding(16.dp)
+                    .scale(1.5f)
+            )
+            Spacer(Modifier.width(16.dp))
+            Text(
+                text = "That's incorrect.",
+                style = MaterialTheme.typography.h6,
+                modifier = Modifier.padding(16.dp)
+            )
         }
     }
 
