@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_homeFragment_to_createFragment"
             app:destination="@id/graph_create" />
+        <action
+            android:id="@+id/action_homeFragment_to_playQuizFragment"
+            app:destination="@id/playQuizFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
@@ -44,4 +47,15 @@
                 app:popUpToInclusive="true" />
         </fragment>
     </navigation>
+    <fragment
+        android:id="@+id/playQuizFragment"
+        android:name="dev.sanskar.panel.ui.play.PlayQuizFragment"
+        android:label="PlayQuizFragment">
+        <deepLink
+            android:id="@+id/deepLink"
+            app:uri="https://sanskar10100.tech/panel/quiz?code={code}" />
+        <argument
+            android:name="code"
+            app:argType="string" />
+    </fragment>
 </navigation>
