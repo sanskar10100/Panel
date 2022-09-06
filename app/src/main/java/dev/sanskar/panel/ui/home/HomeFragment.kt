@@ -1,4 +1,4 @@
-package dev.sanskar.panel.ui
+package dev.sanskar.panel.ui.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -40,7 +40,6 @@ import com.google.firebase.ktx.Firebase
 import dev.sanskar.panel.R
 import dev.sanskar.panel.ui.components.FullWidthColumnWithCenteredChildren
 import dev.sanskar.panel.ui.components.PanelTextField
-import dev.sanskar.panel.ui.home.HomeViewModel
 import dev.sanskar.panel.ui.theme.PanelTheme
 import dev.sanskar.panel.util.clickWithRipple
 

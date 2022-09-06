@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "dev.sanskar.panel"
@@ -52,6 +52,7 @@ dependencies {
     implementation 'androidx.compose.material:material:1.2.1'
     implementation 'androidx.compose.material:material-icons-extended:1.2.1'
     implementation 'androidx.activity:activity-compose:1.5.1'
+    implementation "com.google.accompanist:accompanist-pager:0.26.2-beta"
 
     // Navigation
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.1'
