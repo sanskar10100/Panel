@@ -67,7 +67,7 @@ fun BinaryAnswer(modifier: Modifier = Modifier, builderMode: AnswerBuilder = Ans
                     .fillMaxHeight()
                     .weight(1f)
                     .clickWithRipple {
-                        onSelected(true)
+                        onSelected(false)
                     },
             ) {
                 Text(
