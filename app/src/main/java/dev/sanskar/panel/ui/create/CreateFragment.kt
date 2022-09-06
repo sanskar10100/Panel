@@ -7,15 +7,11 @@ import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -63,6 +59,7 @@ import dev.sanskar.panel.R
 import dev.sanskar.panel.ui.components.AnswerBuilder
 import dev.sanskar.panel.ui.components.BinaryAnswer
 import dev.sanskar.panel.ui.components.FullWidthColumnWithCenteredChildren
+import dev.sanskar.panel.ui.components.InterceptClickBox
 import dev.sanskar.panel.ui.components.MultipleChoiceAnswer
 import dev.sanskar.panel.ui.components.MultipleSelectAnswer
 import dev.sanskar.panel.ui.components.PanelTextField
@@ -70,7 +67,6 @@ import dev.sanskar.panel.ui.components.StatefulPanelTextField
 import dev.sanskar.panel.ui.data.AnswerType
 import dev.sanskar.panel.ui.data.getMultipleCorrectAnswers
 import dev.sanskar.panel.ui.theme.PanelTheme
-import dev.sanskar.panel.util.clickWithRipple
 import kotlinx.coroutines.launch
 
 class CreateFragment : Fragment() {
@@ -213,101 +209,61 @@ class CreateFragment : Fragment() {
                 )
                 Spacer(Modifier.height(32.dp))
 
-                Box(
+                InterceptClickBox(
                     modifier = Modifier
                         .fillMaxWidth(0.7f)
                         .height(IntrinsicSize.Min)
                         .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
-                        .padding(8.dp)
+                        .padding(8.dp),
+                    onClick = { viewModel.answerType = AnswerType.BINARY }
                 ) {
-                    BinaryAnswer(
-                        modifier = Modifier.clickable(false) {}
-                    ) {
-
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Transparent)
-                            .clickWithRipple {
-                                viewModel.selectAnswerType(AnswerType.BINARY)
-                            },
-                    )
+                    BinaryAnswer {}
                 }
 
                 Spacer(Modifier.height(32.dp))
-                Box(
+                InterceptClickBox(
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
                         .height(IntrinsicSize.Min)
                         .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
-                        .padding(8.dp)
+                        .padding(8.dp),
+                    onClick = { viewModel.selectAnswerType(AnswerType.MCQ) }
                 ) {
                     MultipleChoiceAnswer(
                         options = listOf("Option 1", "Option 2", "Option 3"),
                         onSelected = { },
                         modifier = Modifier
-                            .padding(horizontal = 32.dp)
-                            .clickable(false) {}
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Transparent)
-                            .clickWithRipple {
-                                viewModel.selectAnswerType(AnswerType.MCQ)
-                            },
+                            .padding(horizontal = 16.dp)
                     )
                 }
 
                 Spacer(Modifier.height(32.dp))
-                Box(
+                InterceptClickBox(
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
                         .height(IntrinsicSize.Min)
                         .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
-                        .padding(8.dp)
+                        .padding(8.dp),
+                    onClick = { viewModel.selectAnswerType(AnswerType.MSQ) }
                 ) {
                     MultipleSelectAnswer(
                         options = listOf("Option 1", "Option 2", "Option 3"),
                         onSelected = { },
                         modifier = Modifier
-                            .padding(horizontal = 32.dp)
-                            .clickable(false) {}
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Transparent)
-                            .clickWithRipple {
-                                viewModel.selectAnswerType(AnswerType.MSQ)
-                            },
+                            .padding(horizontal = 16.dp)
                     )
                 }
 
                 Spacer(Modifier.height(32.dp))
-                Box(
+                InterceptClickBox(
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
                         .height(IntrinsicSize.Min)
                         .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
                         .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
-                    contentAlignment = Alignment.Center
+                    onClick = { viewModel.selectAnswerType(AnswerType.TEXT) }
                 ) {
-                    StatefulPanelTextField(
-                        modifier = Modifier.clickable(false) {}
-                    ) {}
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Transparent)
-                            .clickWithRipple {
-                                viewModel.selectAnswerType(AnswerType.TEXT)
-                            },
-                    )
+                    StatefulPanelTextField {}
                 }
                 Spacer(Modifier.height(32.dp))
             }
