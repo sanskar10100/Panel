@@ -107,7 +107,6 @@ class CreateFragment : Fragment() {
                             backLayerContent = {
                                 Header {
                                     scope.launch {
-                                        keyboardController?.hide()
                                         backdropScaffoldState.conceal()
                                     }
                                 }
