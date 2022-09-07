@@ -59,8 +59,10 @@ import dev.sanskar.panel.ui.data.AnswerType
 import dev.sanskar.panel.ui.data.Question
 import dev.sanskar.panel.ui.theme.PanelTheme
 import dev.sanskar.panel.util.UiState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class PlayQuizFragment : Fragment() {
     private val viewModel by viewModels<PlayViewModel>()
@@ -122,7 +124,11 @@ class PlayQuizFragment : Fragment() {
                     if (it) {
                         if (pagerState.currentPage < questions.size - 1) {
                             delay(1000)
-                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                            try {
+                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                            } catch (_: CancellationException) {
+                                Timber.d("page scroll cancelled")
+                            }
                         } else {
                             delay(1000)
                             findNavController().navigate(
