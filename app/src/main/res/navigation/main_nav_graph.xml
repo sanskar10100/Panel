@@ -57,5 +57,18 @@
         <argument
             android:name="code"
             app:argType="string" />
+        <action
+            android:id="@+id/action_playQuizFragment_to_quizFinishedFragment"
+            app:destination="@id/quizFinishedFragment"
+            app:popUpTo="@id/playQuizFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/quizFinishedFragment"
+        android:name="dev.sanskar.panel.ui.play.QuizFinishedFragment"
+        android:label="QuizFinishedFragment" >
+        <argument
+            android:name="quizStats"
+            app:argType="dev.sanskar.panel.ui.data.QuizStats" />
     </fragment>
 </navigation>

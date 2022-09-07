@@ -9,6 +9,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import dev.sanskar.panel.ui.data.AnswerState
 import dev.sanskar.panel.ui.data.Question
+import dev.sanskar.panel.ui.data.QuizStats
 import dev.sanskar.panel.ui.data.getMultipleCorrectAnswers
 import dev.sanskar.panel.util.UiState
 import kotlinx.coroutines.channels.BufferOverflow
@@ -75,4 +76,11 @@ class PlayViewModel : ViewModel() {
         }
         nextPage.tryEmit(true)
     }
+
+    fun generateQuizStats() = QuizStats(
+        correct = quizQuestions.count { it.answerState == AnswerState.Correct },
+        incorrect = quizQuestions.count { it.answerState == AnswerState.Incorrect },
+        skipped = quizQuestions.count { it.answerState == AnswerState.Unanswered },
+        total = quizQuestions.size
+    )
 }
