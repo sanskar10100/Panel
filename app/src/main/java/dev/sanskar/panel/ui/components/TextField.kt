@@ -46,7 +46,7 @@ fun PanelTextField(
     modifier: Modifier = Modifier,
     isError: Boolean = false,
     label: String = "Answer",
-    placeholder: String = "9.8",
+    placeholder: String = "Type your answer here",
     icon: ImageVector = Icons.Default.QuestionAnswer,
     onChanged: (String) -> Unit,
     onDone: (String) -> Unit,
