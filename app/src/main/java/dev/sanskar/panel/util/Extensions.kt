@@ -21,7 +21,7 @@ fun Modifier.clickWithRipple(bounded: Boolean = true, onClick: () -> Unit) = com
     )
 }
 
-const val STRING_SEPARATOR = " "
+const val STRING_SEPARATOR = "=)"
 
 @Composable
 fun startAnimationOnAdd(): Boolean {
