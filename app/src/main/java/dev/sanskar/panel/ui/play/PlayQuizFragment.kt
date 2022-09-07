@@ -120,7 +120,11 @@ class PlayQuizFragment : Fragment() {
                             pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         } else {
                             delay(1000)
-                            findNavController().navigateUp()
+                            findNavController().navigate(
+                                PlayQuizFragmentDirections.actionPlayQuizFragmentToQuizFinishedFragment(
+                                    viewModel.generateQuizStats()
+                                )
+                            )
                         }
                     }
                 }
