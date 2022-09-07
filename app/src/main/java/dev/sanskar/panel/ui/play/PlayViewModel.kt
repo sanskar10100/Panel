@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -23,10 +24,11 @@ class PlayViewModel : ViewModel() {
 
     fun loadQuiz(code: String) {
         quizLoadState = UiState.Loading
+        val id = if (code.startsWith("https")) code.toUri().getQueryParameter("code") ?: "" else code
         Firebase
             .firestore
             .collection("quizzes")
-            .document(code)
+            .document(id)
             .collection("questions")
             .get()
             .addOnSuccessListener {
