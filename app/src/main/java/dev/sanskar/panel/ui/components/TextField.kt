@@ -14,17 +14,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 
 @Composable
 fun StatefulPanelTextField(modifier: Modifier = Modifier, onDone: (String) -> Unit) {
     var value by remember { mutableStateOf("") }
     var startedTyping by remember { mutableStateOf(false) }
-    val errorState by derivedStateOf {
+    val errorState by remember { derivedStateOf {
         startedTyping && value.isEmpty()
-    }
+    } }
     PanelTextField(
         state = value,
         modifier = modifier,
@@ -40,6 +42,7 @@ fun StatefulPanelTextField(modifier: Modifier = Modifier, onDone: (String) -> Un
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PanelTextField(
     state: String,
@@ -51,6 +54,8 @@ fun PanelTextField(
     onChanged: (String) -> Unit,
     onDone: (String) -> Unit,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     OutlinedTextField(
         modifier = modifier
             .fillMaxWidth(),
@@ -67,7 +72,10 @@ fun PanelTextField(
         ),
         keyboardActions = KeyboardActions(
             onDone = {
-                if (state.isNotEmpty()) onDone(state)
+                if (state.isNotEmpty()) {
+                    onDone(state)
+                    keyboardController?.hide()
+                }
             }
         ),
         maxLines = 10,
