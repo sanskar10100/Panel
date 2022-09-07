@@ -47,6 +47,8 @@ import androidx.navigation.fragment.navArgs
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dev.sanskar.panel.ui.components.BinaryAnswer
 import dev.sanskar.panel.ui.components.ErrorDialog
 import dev.sanskar.panel.ui.components.FullWidthColumnWithCenteredChildren
@@ -71,6 +73,11 @@ class PlayQuizFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        if (Firebase.auth.currentUser == null) {
+            findNavController().navigate(
+                PlayQuizFragmentDirections.actionPlayQuizFragmentToLoginFragment(args.code)
+            )
+        }
         viewModel.loadQuiz(args.code)
 
         return ComposeView(requireContext()).apply {

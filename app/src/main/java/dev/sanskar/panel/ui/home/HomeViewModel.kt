@@ -1,5 +1,6 @@
 package dev.sanskar.panel.ui.home
 
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.ktx.firestore
@@ -15,10 +16,11 @@ class HomeViewModel : ViewModel() {
     val error = MutableSharedFlow<String>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     fun checkCode(code: String) {
+        val id = if (code.startsWith("https")) code.toUri().getQueryParameter("code") ?: "" else code
         Firebase
             .firestore
             .collection("quizzes")
-            .document(code)
+            .document()
             .get()
             .addOnSuccessListener {
                 Timber.d("Code status: ${it.exists()}")
