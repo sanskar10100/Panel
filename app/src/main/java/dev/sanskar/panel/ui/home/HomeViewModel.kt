@@ -20,7 +20,7 @@ class HomeViewModel : ViewModel() {
         Firebase
             .firestore
             .collection("quizzes")
-            .document()
+            .document(id)
             .get()
             .addOnSuccessListener {
                 Timber.d("Code status: ${it.exists()}")

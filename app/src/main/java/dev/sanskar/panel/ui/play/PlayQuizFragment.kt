@@ -8,10 +8,8 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -115,7 +113,7 @@ class PlayQuizFragment : Fragment() {
     @Composable
     fun Questions(questions: SnapshotStateList<Question>, modifier: Modifier = Modifier) {
 
-        Column(modifier) {
+        Box(modifier) {
             val pagerState = rememberPagerState()
             val scope = rememberCoroutineScope()
 
@@ -136,11 +134,11 @@ class PlayQuizFragment : Fragment() {
                     }
                 }
             }
-
             HorizontalPager(
                 count = questions.size,
                 state = pagerState,
-                modifier = Modifier.fillMaxHeight(0.6f)
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
             ) { questionNumber ->
                 FullWidthColumnWithCenteredChildren {
                     QuestionUi(
@@ -163,7 +161,9 @@ class PlayQuizFragment : Fragment() {
                 }
             }
             Box(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
             ) {
                 androidx.compose.animation.AnimatedVisibility(
                     pagerState.currentPage > 0,
