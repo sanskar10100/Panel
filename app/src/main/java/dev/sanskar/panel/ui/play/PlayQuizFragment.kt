@@ -162,7 +162,6 @@ class PlayQuizFragment : Fragment() {
 
                 }
             }
-            Spacer(Modifier.weight(1f))
             Box(
                 modifier = Modifier.fillMaxWidth()
             ) {
