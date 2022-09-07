@@ -4,6 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +37,7 @@ import androidx.navigation.fragment.navArgs
 import dev.sanskar.panel.ui.components.FullWidthColumnWithCenteredChildren
 import dev.sanskar.panel.ui.data.QuizStats
 import dev.sanskar.panel.ui.theme.PanelTheme
+import dev.sanskar.panel.util.startAnimationOnAdd
 
 class QuizFinishedFragment : Fragment() {
     private val args by navArgs<QuizFinishedFragmentArgs>()
@@ -40,7 +45,7 @@ class QuizFinishedFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -50,15 +55,26 @@ class QuizFinishedFragment : Fragment() {
         }
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Composable
-    fun QuizFinishedScreen(quizStats: QuizStats,  modifier: Modifier = Modifier) {
-        FullWidthColumnWithCenteredChildren(
-            verticalArrangement = Arrangement.SpaceEvenly
+    fun QuizFinishedScreen(quizStats: QuizStats, modifier: Modifier = Modifier) {
+        AnimatedVisibility(
+            startAnimationOnAdd(),
+            enter = slideInVertically(tween(500)) { it },
         ) {
-            StatCard(number = quizStats.correct, icon = Icons.Default.Check, Color(0xFF81C784))
-            StatCard(number = quizStats.incorrect, icon = Icons.Default.Cancel, Color(0xFFF06292))
-            StatCard(number = quizStats.skipped, icon = Icons.Default.Warning, Color(0xFFDCE775))
-            StatCard(number = quizStats.total, icon = Icons.Default.Favorite, Color(0xFF64B5F6))
+            FullWidthColumnWithCenteredChildren(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                modifier = modifier
+            ) {
+                StatCard(number = quizStats.correct, icon = Icons.Default.Check, Color(0xFF81C784))
+                StatCard(number = quizStats.incorrect,
+                    icon = Icons.Default.Cancel,
+                    Color(0xFFF06292))
+                StatCard(number = quizStats.skipped,
+                    icon = Icons.Default.Warning,
+                    Color(0xFFDCE775))
+                StatCard(number = quizStats.total, icon = Icons.Default.Favorite, Color(0xFF64B5F6))
+            }
         }
     }
 
