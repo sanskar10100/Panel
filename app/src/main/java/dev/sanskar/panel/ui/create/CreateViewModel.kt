@@ -63,7 +63,7 @@ class CreateViewModel : ViewModel() {
     }
 
     fun addTextQuestion(text: String) {
-        questions.add(Question(text, AnswerType.TEXT, text))
+        questions.add(Question(questionText, AnswerType.TEXT, text))
         clearState()
         Timber.d("Added text question, now list: $questions")
         addQuestionSnackbar = "Added text question"

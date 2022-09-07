@@ -53,7 +53,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
 
-        if (Firebase.auth.currentUser == null) findNavController().navigate(R.id.action_homeFragment_to_loginFragment)
+        if (Firebase.auth.currentUser == null) findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToLoginFragment(null))
 
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -108,7 +108,7 @@ class HomeFragment : Fragment() {
                     val (state, updateState) = remember { mutableStateOf("")}
                     PanelTextField(
                         state,
-                        label = "Enter code",
+                        label = "Enter code or url",
                         placeholder = "eiehuheaeaweew",
                         icon = Icons.Default.Quiz,
                         onChanged = updateState,

@@ -11,21 +11,16 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -33,16 +28,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
-import com.google.firebase.ktx.Firebase
 import dev.sanskar.panel.R
 import dev.sanskar.panel.ui.theme.PanelTheme
 
 class LoginFragment : Fragment() {
+
+    private val args by navArgs<LoginFragmentArgs>()
 
     private val providers = arrayListOf(
         AuthUI.IdpConfig.GoogleBuilder().build()
@@ -55,7 +52,8 @@ class LoginFragment : Fragment() {
 
     private val signInLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
         if (it.resultCode == Activity.RESULT_OK) {
-            findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
+            if (args.code == null) findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
+            else findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToPlayQuizFragment(args.code!!))
         }
     }
 
