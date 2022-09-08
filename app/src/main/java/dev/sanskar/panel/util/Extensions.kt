@@ -11,6 +11,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 fun Modifier.clickWithRipple(bounded: Boolean = true, onClick: () -> Unit) = composed {
     this.clickable(
@@ -31,3 +33,5 @@ fun startAnimationOnAdd(): Boolean {
     }
     return state
 }
+
+fun <T> oneShotFlow() = MutableSharedFlow<T>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
