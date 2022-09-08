@@ -71,7 +71,6 @@ class CreateViewModel : ViewModel() {
 
     fun pushQuizToFirebase() {
         quizPushId = UiState.Loading
-        var successfulPushCount = 0
 
         Firebase
             .firestore
@@ -86,8 +85,7 @@ class CreateViewModel : ViewModel() {
                         .document(index.toString())
                         .set(question)
                         .addOnSuccessListener {
-                            successfulPushCount ++
-                            if (successfulPushCount == questions.size) {
+                            if (index == questions.size - 1) {
                                 quizPushId = UiState.Success(ref.id)
                             }
                         }
