@@ -1,209 +1,356 @@
 package dev.sanskar.panel.ui.create
 
 import android.os.Bundle
-import android.view.Display
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Icon
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.BackdropScaffold
+import androidx.compose.material.BackdropValue
+import androidx.compose.material.Button
+import androidx.compose.material.Card
+import androidx.compose.material.Checkbox
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.RadioButton
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.QuestionAnswer
+import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.rememberBackdropScaffoldState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import dev.sanskar.panel.ui.components.AnswerField
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
+import dev.sanskar.panel.R
+import dev.sanskar.panel.ui.components.AnswerBuilder
 import dev.sanskar.panel.ui.components.BinaryAnswer
-import dev.sanskar.panel.ui.components.MultipleAnswerBuilder
+import dev.sanskar.panel.ui.components.FullWidthColumnWithCenteredChildren
+import dev.sanskar.panel.ui.components.InterceptClickBox
 import dev.sanskar.panel.ui.components.MultipleChoiceAnswer
 import dev.sanskar.panel.ui.components.MultipleSelectAnswer
-import dev.sanskar.panel.ui.components.StatefulAnswerField
+import dev.sanskar.panel.ui.components.PanelTextField
+import dev.sanskar.panel.ui.components.StatefulPanelTextField
+import dev.sanskar.panel.ui.data.AnswerType
+import dev.sanskar.panel.ui.data.getMultipleCorrectAnswers
 import dev.sanskar.panel.ui.theme.PanelTheme
-import dev.sanskar.panel.util.clickWithRipple
+import kotlinx.coroutines.launch
 
 class CreateFragment : Fragment() {
-    private val viewModel by viewModels<CreateViewModel>()
+    private val viewModel by navGraphViewModels<CreateViewModel>(R.id.graph_create)
 
+    @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+        savedInstanceState: Bundle?,
+    ): View {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 PanelTheme {
-                    CreateScreen()
+                    val scaffoldState = rememberScaffoldState()
+                    val backdropScaffoldState =
+                        rememberBackdropScaffoldState(BackdropValue.Revealed)
+                    val scope = rememberCoroutineScope()
+                    val keyboardController = LocalSoftwareKeyboardController.current
+                    Scaffold(
+                        scaffoldState = scaffoldState,
+                        drawerElevation = 5.dp,
+                        drawerShape = RoundedCornerShape(8.dp),
+                        drawerContent = {
+                            CurrentQuestionsList()
+                        }
+                    ) {
+                        LaunchedEffect(viewModel.addQuestionSnackbar) {
+                            if (viewModel.addQuestionSnackbar.isNotEmpty()) {
+                                backdropScaffoldState.reveal()
+                                scaffoldState.snackbarHostState.showSnackbar(viewModel.addQuestionSnackbar)
+                                viewModel.addQuestionSnackbar = ""
+                            }
+                        }
+                        BackdropScaffold(
+                            appBar = { },
+                            backLayerContent = {
+                                Header {
+                                    scope.launch {
+                                        backdropScaffoldState.conceal()
+                                    }
+                                }
+                            },
+                            frontLayerContent = { AnswerContent() },
+                            modifier = Modifier.padding(it),
+                            scaffoldState = backdropScaffoldState,
+                            backLayerBackgroundColor = Color(0xFFF5F5F5),
+                            peekHeight = 64.dp
+                        )
+                    }
                 }
             }
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun CreateScreen() {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize(),
+    private fun Header(modifier: Modifier = Modifier, onQuestionInput: () -> Unit) {
+        Column(
+            modifier = modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            stickyHeader {
-                Spacer(Modifier.height(32.dp))
-                QuestionField(onDone = {
-                    viewModel.question = it
-                })
-                Spacer(Modifier.height(32.dp))
-            }
-            val mcqBuilder = MultipleAnswerBuilder(true)
-            val msqBuilder = MultipleAnswerBuilder(true)
-            when (viewModel.answerType) {
-                AnswerType.NONE -> answerTypeSelector()
-                AnswerType.BINARY -> item { BinaryAnswer(onSelected = { display(message = it.toString()) }) }
-                AnswerType.MCQ -> item { MultipleChoiceAnswer(emptyList(), builderMode = mcqBuilder) { display(mcqBuilder.toString()) } }
-                AnswerType.MSQ -> item { MultipleSelectAnswer(emptyList(), builderMode = msqBuilder) { display(msqBuilder.toString()) } }
-                AnswerType.TEXT -> item { StatefulAnswerField {} }
-            }
+            Spacer(Modifier.height(16.dp))
+            Text(
+                "Swipe to right to see existing questions and finalize the quiz",
+                style = MaterialTheme.typography.subtitle2,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(8.dp)
+            )
+            Spacer(Modifier.height(32.dp))
+            PanelTextField(
+                state = viewModel.questionText,
+                modifier = Modifier.fillMaxWidth(0.9f),
+                isError = false,
+                label = "Question",
+                placeholder = "What is the value of g?",
+                icon = Icons.Default.QuestionMark,
+                onChanged = { viewModel.questionText = it },
+                onDone = { onQuestionInput() }
+            )
+            Spacer(Modifier.height(32.dp))
         }
-    }
-
-    fun display(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     @Composable
-    fun QuestionField(onDone: (String) -> Unit, modifier: Modifier = Modifier) {
-        var value by remember { mutableStateOf("") }
-        var startedTyping by remember { mutableStateOf(false) }
-        val errorState by derivedStateOf {
-            startedTyping && value.isEmpty()
+    fun AnswerContent(modifier: Modifier = Modifier) {
+        BackHandler(viewModel.answerType != AnswerType.NONE) {
+            viewModel.answerType = AnswerType.NONE
         }
 
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth(0.9f),
-            value = value,
-            onValueChange = {
-                value = it
-                startedTyping = true
-            },
-            label = { Text("Question")},
-            placeholder = { Text("What's the value of g?") },
-            leadingIcon = { Icon(imageVector = Icons.Default.QuestionAnswer, contentDescription = null) },
-            isError = errorState,
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { if (!errorState) onDone(value) }
-            ),
-            maxLines = 10,
-        )
+        FullWidthColumnWithCenteredChildren {
+            when (viewModel.answerType) {
+                AnswerType.NONE -> AnswerTypeSelector()
+                AnswerType.BINARY -> {
+                    BinaryAnswer(
+                        modifier = Modifier
+                            .fillMaxWidth(0.7f)
+                            .padding(top = 16.dp),
+                        builderMode = AnswerBuilder(true),
+                        onSelected = { viewModel.addBinaryQuestion(it) }
+                    )
+                }
+                AnswerType.MCQ -> {
+                    val mcqBuilder = AnswerBuilder(true)
+                    MultipleChoiceAnswer(emptyList(),
+                        Modifier.fillMaxWidth(0.9f),
+                        builderMode = mcqBuilder) {
+                        viewModel.addMultipleChoiceQuestion(mcqBuilder)
+                    }
+                }
+                AnswerType.MSQ -> {
+                    val msqBuilder = AnswerBuilder(true)
+                    MultipleSelectAnswer(emptyList(),
+                        Modifier.fillMaxWidth(0.9f),
+                        builderMode = msqBuilder) {
+                        viewModel.addMultipleSelectQuestion(msqBuilder)
+                    }
+                }
+                AnswerType.TEXT -> {
+                    StatefulPanelTextField(
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) { viewModel.addTextQuestion(it) }
+                }
+            }
+        }
     }
 
-    private fun LazyListScope.answerTypeSelector() {
-        item {
-            AnimatedVisibility(
-                viewModel.showSelector,
-                modifier = Modifier
-                    .clickWithRipple { viewModel.selectAnswerType(AnswerType.BINARY) }
-                    .fillMaxWidth(0.9f)
-                    .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
-                    .padding(8.dp)
-            ) {
-                BinaryAnswer(
-                    modifier = Modifier.clickable(false) {}
-                ){
+    @Composable
+    private fun AnswerTypeSelector() {
 
+        Spacer(Modifier.height(16.dp))
+        AnimatedVisibility(viewModel.showSelector.value) {
+            FullWidthColumnWithCenteredChildren(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    "Please select an answer type",
+                    style = MaterialTheme.typography.h6
+                )
+                Spacer(Modifier.height(32.dp))
+
+                InterceptClickBox(
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .height(IntrinsicSize.Min)
+                        .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
+                        .padding(8.dp),
+                    onClick = { viewModel.answerType = AnswerType.BINARY }
+                ) {
+                    BinaryAnswer {}
                 }
-                Spacer(Modifier.height(8.dp))
-            }
-        }
 
-        item {
-            Spacer(Modifier.height(32.dp))
-            AnimatedVisibility(
-                viewModel.showSelector,
-                modifier = Modifier
-                    .clickWithRipple { viewModel.selectAnswerType(AnswerType.MCQ) }
-                    .fillMaxWidth(0.9f)
-                    .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
-                    .padding(8.dp)
-            ) {
-                MultipleChoiceAnswer(
-                    options = listOf("Option 1", "Option 2", "Option 3"),
-                    onSelected = { },
+                Spacer(Modifier.height(32.dp))
+                InterceptClickBox(
                     modifier = Modifier
-                        .padding(horizontal = 32.dp)
-                        .clickable(false) {}
-                )
-                Spacer(Modifier.height(8.dp))
-            }
-        }
+                        .fillMaxWidth(0.9f)
+                        .height(IntrinsicSize.Min)
+                        .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
+                        .padding(8.dp),
+                    onClick = { viewModel.selectAnswerType(AnswerType.MCQ) }
+                ) {
+                    MultipleChoiceAnswer(
+                        options = listOf("Option 1", "Option 2", "Option 3"),
+                        onSelected = { },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                    )
+                }
 
-        item {
-            Spacer(Modifier.height(32.dp))
-            AnimatedVisibility(
-                viewModel.showSelector,
-                modifier = Modifier
-                    .clickWithRipple { viewModel.selectAnswerType(AnswerType.MSQ) }
-                    .fillMaxWidth(0.9f)
-                    .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
-                    .padding(8.dp)
-            ) {
-                MultipleSelectAnswer(
-                    options = listOf("Option 1", "Option 2", "Option 3"),
-                    onSelected = { },
+                Spacer(Modifier.height(32.dp))
+                InterceptClickBox(
                     modifier = Modifier
-                        .padding(horizontal = 32.dp)
-                        .clickable(false) {}
-                )
-                Spacer(Modifier.height(8.dp))
+                        .fillMaxWidth(0.9f)
+                        .height(IntrinsicSize.Min)
+                        .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
+                        .padding(8.dp),
+                    onClick = { viewModel.selectAnswerType(AnswerType.MSQ) }
+                ) {
+                    MultipleSelectAnswer(
+                        options = listOf("Option 1", "Option 2", "Option 3"),
+                        onSelected = { },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                    )
+                }
+
+                Spacer(Modifier.height(32.dp))
+                InterceptClickBox(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .height(IntrinsicSize.Min)
+                        .border(1.dp, Color.DarkGray, shape = RoundedCornerShape(8.dp))
+                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                    onClick = { viewModel.selectAnswerType(AnswerType.TEXT) }
+                ) {
+                    StatefulPanelTextField {}
+                }
+                Spacer(Modifier.height(32.dp))
             }
         }
+    }
 
-        item {
-            Spacer(Modifier.height(32.dp))
-            AnimatedVisibility(
-                viewModel.showSelector,
-                modifier = Modifier
-                    .clickWithRipple { viewModel.selectAnswerType(AnswerType.TEXT) }
-                    .fillMaxWidth(0.9f)
-                    .border(1.dp, Color.Blue, shape = RoundedCornerShape(8.dp))
-                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+    @OptIn(ExperimentalMaterialApi::class)
+    @Composable
+    fun CurrentQuestionsList(modifier: Modifier = Modifier) {
+        FullWidthColumnWithCenteredChildren {
+            LazyColumn(
+                modifier = modifier
+                    .weight(1f)
+                    .fillMaxWidth()
             ) {
-                StatefulAnswerField(
-                    modifier = Modifier.clickable(false) {}
-                ) {}
+                items(viewModel.questions) { question ->
+                    var expanded by remember { mutableStateOf(false) }
+                    val spacerHeight by animateDpAsState(if (expanded) 8.dp else 2.dp)
+                    Spacer(Modifier.height(spacerHeight))
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 2.dp),
+                        elevation = 3.dp,
+                        shape = RoundedCornerShape(8.dp),
+                        onClick = { expanded = !expanded }
+                    ) {
+                        FullWidthColumnWithCenteredChildren(
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text(
+                                text = question.questionText,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            AnimatedVisibility(visible = expanded) {
+                                when (question.type) {
+                                    AnswerType.NONE -> {}
+                                    AnswerType.BINARY -> Text("Correct Answer: ${question.correct}")
+                                    AnswerType.TEXT -> {
+                                        OutlinedTextField(
+                                            value = question.correct,
+                                            onValueChange = { },
+                                            readOnly = true
+                                        )
+                                    }
+                                    AnswerType.MCQ -> {
+                                        FullWidthColumnWithCenteredChildren {
+                                            question.options.forEach {
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(it)
+                                                    Spacer(Modifier.weight(1f))
+                                                    RadioButton(it == question.correct,
+                                                        onClick = { })
+                                                }
+                                            }
+                                        }
+                                    }
+                                    AnswerType.MSQ -> {
+                                        val answers = question.correct.getMultipleCorrectAnswers()
+                                        FullWidthColumnWithCenteredChildren {
+                                            question.options.forEach {
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(it)
+                                                    Spacer(Modifier.weight(1f))
+                                                    Checkbox(it in answers, onCheckedChange = { })
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(spacerHeight))
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            if (viewModel.questions.isNotEmpty()) {
+                Button(
+                    modifier = Modifier.fillMaxWidth(0.9f),
+                    onClick = { findNavController().navigate(R.id.action_createFragment_to_quizGeneratedFragment) }
+                ) {
+                    Text("Generate Quiz")
+                }
             }
         }
     }
