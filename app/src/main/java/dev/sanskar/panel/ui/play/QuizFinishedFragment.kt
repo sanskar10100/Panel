@@ -21,7 +21,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Pin
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -67,13 +67,9 @@ class QuizFinishedFragment : Fragment() {
                 modifier = modifier
             ) {
                 StatCard(number = quizStats.correct, icon = Icons.Default.Check, Color(0xFF81C784))
-                StatCard(number = quizStats.incorrect,
-                    icon = Icons.Default.Cancel,
-                    Color(0xFFF06292))
-                StatCard(number = quizStats.skipped,
-                    icon = Icons.Default.Warning,
-                    Color(0xFFDCE775))
-                StatCard(number = quizStats.total, icon = Icons.Default.Favorite, Color(0xFF64B5F6))
+                StatCard(number = quizStats.incorrect, icon = Icons.Default.Cancel, Color(0xFFF06292))
+                StatCard(number = quizStats.skipped, icon = Icons.Default.Warning, Color(0xFFDCE775))
+                StatCard(number = quizStats.total, icon = Icons.Default.Pin, Color(0xFF64B5F6))
             }
         }
     }
