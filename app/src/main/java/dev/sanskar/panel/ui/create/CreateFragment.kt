@@ -86,7 +86,6 @@ class CreateFragment : Fragment() {
                     val backdropScaffoldState =
                         rememberBackdropScaffoldState(BackdropValue.Revealed)
                     val scope = rememberCoroutineScope()
-                    val keyboardController = LocalSoftwareKeyboardController.current
                     Scaffold(
                         scaffoldState = scaffoldState,
                         drawerElevation = 5.dp,
@@ -157,7 +156,7 @@ class CreateFragment : Fragment() {
             viewModel.answerType = AnswerType.NONE
         }
 
-        FullWidthColumnWithCenteredChildren {
+        FullWidthColumnWithCenteredChildren(modifier) {
             when (viewModel.answerType) {
                 AnswerType.NONE -> AnswerTypeSelector()
                 AnswerType.BINARY -> {
