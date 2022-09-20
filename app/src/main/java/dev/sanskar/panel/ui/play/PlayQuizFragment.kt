@@ -106,7 +106,7 @@ class PlayQuizFragment : Fragment() {
                 ErrorDialog(message = state.message) { findNavController().navigateUp() }
             }
             is UiState.Success -> {
-                Questions(viewModel.quizQuestions)
+                Questions(viewModel.quizQuestions, modifier)
             }
         }
     }
